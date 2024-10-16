@@ -146,7 +146,7 @@ class PipelineManager:
             print("Пайплайн завершён успешно.")
         else:
             print("Пайплайн завершён с ошибками:")
-            for module, module_data in result_dict['modules']:
+            for module, module_data in result_dict['modules'].items():
                 if not module_data['status']:
                     print(f'Модуль: {module}')
                     for sample, sample_data in result_dict['modules'][module][module_data].items():
