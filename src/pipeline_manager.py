@@ -145,14 +145,14 @@ class PipelineManager:
         if result_dict['status']:
             print("Пайплайн завершён успешно.")
         else:
-            print("Пайплайн завершён с ошибками:")
-            for module, module_data in result_dict['modules'].items():
+            print("Пайплайн завершён с ошибками!")
+            '''for module, module_data in result_dict['modules'].items():
                 if not module_data['status']:
                     print(f'Модуль: {module}')
                     for sample, sample_data in result_dict['modules'][module][module_data].items():
                         if not sample_data['status']:
                             print(f'\t{sample}')
                             for programm, exit_code in sample_data.items():
-                                print(f'\t\t{programm}: exit code {exit_code}')
+                                print(f'\t\t{programm}: exit code {exit_code}')'''
 
         save_yaml(filename='status_log.yaml', data=result_dict, path=self.log_dir)
