@@ -75,7 +75,7 @@ class ModuleRunner:
             # Если ключ 'commands' и значение пустое, назначаем пустой список
             if key == 'commands':
                 for group, value in data[key].items():
-                    print(group)
+                    print(group, value)
                     if value is None:
                         data[key][group] = []
             setattr(self, key, value)
