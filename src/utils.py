@@ -358,7 +358,7 @@ def run_command(cmd: str) -> dict:
                 'stderr': 'INTERRUPTED',  
                 'stdout': 'INTERRUPTED'   
                 }
-    return log_data
+        return log_data
 
     # Время завершения (общее)
     duration = time.time() - start_time
