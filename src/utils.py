@@ -156,7 +156,6 @@ def generate_cmd_data(args:dict, folders:dict,
         }
 
     cmd_data = {}
-    print(cmds_dict)
     # Создаём набор команд, которые выполнятся однократно перед прогоном по образцам
     cmd_data['before_batch'] = generate_commands(context=context, cmd_list=cmds_dict['before_batch'], commands=commands)
     
@@ -375,7 +374,7 @@ def run_command(cmd: str) -> dict:
                 {'status': 'OK' if result.returncode == 0 else 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
-                'duration_sec': round(duration, 0),
+                'duration_sec': int(duration),
                 'cpu_duration_sec': round(cpu_duration, 2),
                 'exit_code': result.returncode},
                 'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
