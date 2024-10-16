@@ -30,7 +30,7 @@ def load_config_parser(project_path):
     """
     Импортирует второй парсер из указанного конфиг файла.
     """
-    arg_parser = os.path.join(project_path, 'arg_parser.py')
+    arg_parser = os.path.join(project_path, 'src/arg_parser.py')
     if not os.path.exists(arg_parser):
         raise FileNotFoundError(f"Парсер не найден: {arg_parser}")
 
