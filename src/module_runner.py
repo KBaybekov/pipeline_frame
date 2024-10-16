@@ -19,7 +19,6 @@ class ModuleRunner:
         self.source_extensions: tuple
         self.filenames: dict
         self.commands: dict
-        self.subfolder:str
         self.cmd_data: dict
         self.__dict__= pipeline_manager.__dict__
 
@@ -34,7 +33,7 @@ class ModuleRunner:
         # В зависимости от того, запущен модуль в одиночку либо перед ним отработал другой модуль, определяем папку входных данных
         if self.module_before in self.modules:
             self.input_dir = f'{self.output_dir}/{self.modules_template[self.module_before]["result_dir"]}'
-            
+
         
         # Получаем список образцов
         self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
@@ -87,7 +86,4 @@ class ModuleRunner:
                 for group, val in data[key].items():
                     if val is None:
                         data[key][group] = []
-            if key == 'subfolder':
-                if value is None:
-                    data[key] = ''
             setattr(self, key, value)
