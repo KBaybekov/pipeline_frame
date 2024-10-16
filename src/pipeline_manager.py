@@ -32,7 +32,7 @@ class PipelineManager:
             setattr(self, key, value)
 
         # Получаем данные о запуске
-        self.current_dir = os.getcwd()
+        #self.current_dir = os.getcwd()
         self.today = date.today().strftime('%d.%m.%Y')
 
         # Логи
