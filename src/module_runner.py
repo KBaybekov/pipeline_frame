@@ -76,6 +76,6 @@ class ModuleRunner:
 
             # Если ключ 'commands' и значение пустое, назначаем пустой словарь
             if key == 'commands' and value is None:
-                setattr(self, key, {})
+                setattr(self, key, [])
             else:
                 setattr(self, key, value)
