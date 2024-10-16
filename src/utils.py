@@ -309,6 +309,7 @@ def generate_commands(context:dict,
                 errors += 1
     if errors > 0:
         exit(code=1)
+    print(generated_cmds['aligning'])
     return generated_cmds
 
 
