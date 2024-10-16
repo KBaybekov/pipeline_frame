@@ -5,42 +5,47 @@ import os
 
 class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
-        #Данные, получаемые из pipeline_manager.modules_template
+        self.cmds_template:dict
+        self.executables:dict
+        self.exclude_samples:list
+        self.include_samples:list
         self.folders: dict
+        self.log_dir:str
+        self.log_space:dict
+        self.module_before: str
+        self.modules: list
+        self.modules_template: dict
+        self.output_dir:str
         self.source_extensions: tuple
         self.filenames: dict
         self.commands: dict
         self.subfolder:str
-        
-        # Собственные данные класса
         self.cmd_data: dict
-
-        self.pipeline_manager = pipeline_manager
-
+        self.__dict__= pipeline_manager.__dict__
 
     def run_module(self, module:str, module_result_dict:dict) -> dict:
         # Цвета!
         BLUE = "\033[34m"
         WHITE ="\033[37m"
 
-        # Алиас
-        x = self.pipeline_manager
-
         # Загружаем данные о модуле в пространство класса
-        self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
+        self.load_module(self.modules_template[module], self.input_dir, self.output_dir)
 
+        # В зависимости от того, запущен модуль в одиночку либо перед ним отработал другой модуль, определяем папку входных данных
+        if self.module_before in self.modules:
+            self.input_dir = f'{self.output_dir}/{self.modules_template[self.module_before]['result_dir']}'
+        
         # Получаем список образцов
-        self.samples = generate_sample_list(in_samples=x.include_samples, ex_samples=x.exclude_samples,
-                                            input_dir=f'{x.input_dir}/{self.subfolder}/',
-                                            extensions=self.source_extensions, subfolders=x.subfolders)
+        self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
+                                            input_dir=self.input_dir, extensions=self.source_extensions)
         # Генеририруем команды
-        self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
-                                    executables=x.executables, filenames=self.filenames,
-                                    cmds_dict=self.commands, commands=x.cmds_template, samples=self.samples)
+        self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders,
+                                    executables=self.executables, filenames=self.filenames,
+                                    cmds_dict=self.commands, commands=self.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
-        save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
+        save_yaml(f'cmd_data_{module}', self.log_dir, self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
-        if x.demo == 'yes':
+        if self.demo == 'yes':
             exit()
 
         # Алиас
@@ -49,7 +54,7 @@ class ModuleRunner:
         # Создаём пути
         create_paths(list(self.folders.values()))
         # Инициализируем CommandExecutor
-        exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
+        exe = CommandExecutor(cmd_data=c, log_space=self.log_space, module=module)
 
         # Выполняем команды для каждого образца
         print(f'Module: {BLUE}{module}{WHITE}')
