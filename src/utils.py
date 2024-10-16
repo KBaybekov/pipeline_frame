@@ -305,7 +305,6 @@ def generate_commands(context:dict,
                     generated_cmds[key] = instruction
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
-                print(generated_cmds[key])
     return generated_cmds
 
 
