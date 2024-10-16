@@ -337,26 +337,45 @@ def run_command(cmd: str) -> dict:
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     
     # Выполняем процесс
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
-    # Время завершения (общее)
-    duration = time.time() - start_time
-    # Время процессора в конце
-    cpu_duration = time.process_time() - cpu_start_time
-    # Текущее время завершения
-    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        # Время завершения (общее)
+        duration = time.time() - start_time
+        # Время процессора в конце
+        cpu_duration = time.process_time() - cpu_start_time
+        # Текущее время завершения
+        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
-    # Логгирование
-    log_data = {
+        # Логгирование
+        log_data = {
+                'log':
+                    {'status': 'OK' if result.returncode == 0 else 'FAIL',
+                    'start_time':start_datetime,
+                    'end_time':end_datetime,
+                    'duration_sec': round(duration, 0),
+                    'cpu_duration_sec': round(cpu_duration, 2),
+                    'exit_code': result.returncode},
+                    'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
+                    'stdout': result.stdout.strip() if result.stdout else ''   # Убираем лишние пробелы
+                    }
+    except KeyboardInterrupt:
+        # Время завершения (общее)
+        duration = time.time() - start_time
+        # Время процессора в конце
+        cpu_duration = time.process_time() - cpu_start_time
+        # Текущее время завершения
+        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        log_data = {
             'log':
-                {'status': 'OK' if result.returncode == 0 else 'FAIL',
+                {'status': 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
                 'duration_sec': round(duration, 0),
                 'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': result.returncode},
-                'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
-                'stdout': result.stdout.strip() if result.stdout else ''   # Убираем лишние пробелы
-                }
+                'exit_code': 'INTERRUPTED'},
+                'stderr': 'INTERRUPTED',  
+                'stdout': 'INTERRUPTED'   
+                }         
 
     return log_data
