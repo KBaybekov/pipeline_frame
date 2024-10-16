@@ -293,6 +293,7 @@ def generate_commands(context:dict,
     generated_cmds = {}
 
     # Проходим по каждому ключу в filenames и вычисляем значение
+    errors = 0
     for key, instruction in commands.items():
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
@@ -305,6 +306,9 @@ def generate_commands(context:dict,
                     generated_cmds[key] = instruction
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
+                errors += 1
+    if errors > 0:
+        exit(code=1)
     return generated_cmds
 
 
