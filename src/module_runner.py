@@ -73,3 +73,9 @@ class ModuleRunner:
                 setattr(self, key, tuple(value))
                 continue
             setattr(self, key, value)
+
+            # Если ключ 'commands' и значение пустое, назначаем пустой словарь
+            if key == 'commands' and value is None:
+                setattr(self, key, {})
+            else:
+                setattr(self, key, value)
