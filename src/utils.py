@@ -341,6 +341,8 @@ def run_command(cmd: str) -> dict:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
     except KeyboardInterrupt:
+        print('INTERRUPTED')
+        exit(1)
         # Время завершения (общее)
         duration = time.time() - start_time
         # Время процессора в конце
