@@ -39,7 +39,7 @@ class PipelineManager:
         self.set_logs()
 
         # Указываем путь к папке конфига
-        self.config_path == f'{self.project_path}/config'
+        self.config_path = f'{self.project_path}/config/'
         # Загружаем данные конфигов
         #Загружаем указанные конфиги
         templates = ['machines_template', 'modules_template', 'cmds_template']
