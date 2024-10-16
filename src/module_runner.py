@@ -52,9 +52,9 @@ class ModuleRunner:
         print(f'Module: {BLUE}{module}{WHITE}')
         module_result_dict = exe.execute(c.keys(), module_result_dict)
         
-        # Если модуль завершился с ошибкой - передаём это наверх
+        '''# Если модуль завершился с ошибкой - передаём это наверх
         if not module_result_dict['status']:
-            module_result_dict['status'] = False
+            module_result_dict['status'] = False'''
 
         return module_result_dict
         

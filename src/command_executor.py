@@ -77,7 +77,7 @@ class CommandExecutor:
                 # Проверка успешности выполнения команды
                 if r['status'] == 'FAIL':
                     print(f' {RED}FAIL{WHITE}, exit code: {r["exit_code"]}. ', end='')
-                    s['status'] = False
+                    samples_result_dict['status'] = False
                 else:
                     print(f' {GREEN}OK{WHITE}. ', end='')
                 s['programms'].update({title:r["exit_code"]})
