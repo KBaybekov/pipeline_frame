@@ -10,6 +10,7 @@ class ModuleRunner:
         self.source_extensions: tuple
         self.filenames: dict
         self.commands: dict
+        self.subfolder:str
         
         # Собственные данные класса
         self.cmd_data: dict
@@ -29,11 +30,14 @@ class ModuleRunner:
         self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
 
         # Получаем список образцов
-        self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extensions, x.subfolders)
+        self.samples = generate_sample_list(in_samples=x.include_samples, ex_samples=x.exclude_samples,
+                                            input_dir=f'{x.input_dir}/{self.subfolder}/',
+                                            extensions=self.source_extensions, subfolders=x.subfolders)
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
-                                    cmds_dict=self.commands, commands=x.cmds_template, samples=self.samples)
+                                    cmds_dict=self.commands, commands=x.cmds_template, samples=self.samples,
+                                    subfolder=self.subfolder)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
@@ -77,4 +81,7 @@ class ModuleRunner:
                 for group, val in data[key].items():
                     if val is None:
                         data[key][group] = []
+            if key == 'subfolder':
+                if value is None:
+                    data[key] = ''
             setattr(self, key, value)
