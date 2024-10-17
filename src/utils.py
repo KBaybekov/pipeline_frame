@@ -256,7 +256,6 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
     """
     # Словарь для хранения сгенерированных путей
     generated_filenames = {}
-    print(sample)
     # Объединяем все переменные в один словарь для подстановки в eval()
     context = {
             'folders': folders,
