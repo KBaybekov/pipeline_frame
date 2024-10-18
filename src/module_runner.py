@@ -44,10 +44,9 @@ class ModuleRunner:
                                     cmds_dict=self.commands, commands=self.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', self.log_dir, self.cmd_data)
-        #print(self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
         if self.demo == 'yes':
-            return module_result_dict
+            return self.cmd_data
 
         # Алиас
         c = self.cmd_data

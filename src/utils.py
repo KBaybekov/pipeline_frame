@@ -158,7 +158,6 @@ def generate_cmd_data(args:dict, folders:dict,
     cmd_data = {}
     # Создаём набор команд, которые выполнятся однократно перед прогоном по образцам
     cmd_data['before_batch'] = generate_commands(context=context, cmd_list=cmds_dict['before_batch'], commands=commands)
-    print(cmd_data)
     # Создаём набор команд для каждого образца
     for sample in samples:
         # Генерируем файлы для конкретного образца
