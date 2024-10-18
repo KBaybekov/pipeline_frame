@@ -46,7 +46,7 @@ class ModuleRunner:
         save_yaml(f'cmd_data_{module}', self.log_dir, self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
         if self.demo == 'yes':
-            return self.cmd_data
+            return module_result_dict
 
         # Алиас
         c = self.cmd_data

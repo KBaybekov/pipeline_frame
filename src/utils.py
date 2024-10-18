@@ -172,6 +172,7 @@ def generate_cmd_data(args:dict, folders:dict,
 
     # Создаём набор команд, которые выполнятся однократно после прогона по образцам
     cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
+    print(cmd_data)
     return cmd_data
 
 
