@@ -47,7 +47,7 @@ class ModuleRunner:
         #print(self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
         if self.demo == 'yes':
-            exit()
+            return module_result_dict
 
         # Алиас
         c = self.cmd_data
