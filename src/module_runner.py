@@ -6,6 +6,7 @@ import os
 class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         self.cmds_template:dict
+        self.demo:str
         self.executables:dict
         self.exclude_samples:list
         self.include_samples:list
@@ -28,7 +29,7 @@ class ModuleRunner:
         WHITE ="\033[37m"
 
         # Загружаем данные о модуле в пространство класса
-        self.load_module(self.modules_template[module], self.input_dir, self.output_dir)
+        self.load_module(data=self.modules_template[module], input_dir=self.input_dir, output_dir=self.output_dir)
 
         # В зависимости от того, запущен модуль в одиночку либо перед ним отработал другой модуль, определяем папку входных данных
         if self.module_before in self.modules:
@@ -74,7 +75,7 @@ class ModuleRunner:
                 добавляет их в пространство объекта класса.
         """
         # Составляем полные пути для папок
-        data['folders'] = get_paths(data['folders'], input_dir, output_dir)
+        data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir)
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
             if key == 'source_extensions':
