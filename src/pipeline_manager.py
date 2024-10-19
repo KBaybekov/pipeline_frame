@@ -30,7 +30,6 @@ class PipelineManager:
         # Добавляем все элементы args как атрибуты класса
         for key, value in args.items():
             setattr(self, key, value)
-        print(self.input_dir)
         # Получаем данные о запуске
         #self.current_dir = os.getcwd()
         self.today = date.today().strftime('%d.%m.%Y')

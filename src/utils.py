@@ -128,7 +128,6 @@ def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
         # Проходим по всем директориям в 'output_dir' и добавляем базовый путь 'output_dir'
         **{key: os.path.join(output_dir, f'{value}/') for key, value in (folders.get('output_dir') or {}).items()}
     }
-    print(folders_with_paths)
     return folders_with_paths
 
 
