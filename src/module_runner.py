@@ -32,7 +32,7 @@ class ModuleRunner:
 
         # В зависимости от того, запущен модуль в одиночку либо перед ним отработал другой модуль, определяем папку входных данных
         if self.module_before in self.modules:
-            print(self.modules, self.module_before)
+            #print(self.modules, self.module_before)
             self.input_dir = f'{self.output_dir}/{self.modules_template[self.module_before]["result_dir"]}'
 
         
