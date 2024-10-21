@@ -190,7 +190,6 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     :param subdirs: поиск в подпапках.
     :return: Список путей к файлам.
     """
-    print(subfolders)
     if subfolders:
         # Ищем все файлы в дереве папок с указанными расширениями
         samples = get_samples_in_dir_tree(dir=input_dir, extensions=extensions)
