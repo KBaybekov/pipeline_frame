@@ -18,6 +18,7 @@ class ModuleRunner:
         self.modules_template: dict
         self.output_dir:str
         self.source_extensions: tuple
+        self.subfolders:bool
         self.filenames: dict
         self.commands: dict
         self.cmd_data: dict
@@ -39,7 +40,7 @@ class ModuleRunner:
         
         # Получаем список образцов
         self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
-                                            input_dir=self.input_dir, extensions=self.source_extensions)
+                                            input_dir=self.input_dir, extensions=self.source_extensions, subfolders=self.subfolders)
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders,
                                     executables=self.executables, filenames=self.filenames,
