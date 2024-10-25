@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 from src.utils import run_command, load_yaml, update_yaml
 
 
@@ -47,6 +48,9 @@ class CommandExecutor:
         stdout_section = self.logs['stdout'][f'{self.module}_{self.module_start_time}']
         stderr_section = self.logs['stderr'][f'{self.module}_{self.module_start_time}']
         
+        # Счётчик отработанных образцов
+        k = 0
+        start_time_module = time.time()
         for sample in samples:
             samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
             s = samples_result_dict['samples'][sample]
@@ -84,7 +88,15 @@ class CommandExecutor:
 
                 print(f'Duration: {r["duration_sec"]} seconds.')
             
-             # Обновляем логи для текущего образца
+            # Вывод статистики по времени, затраченному на обработку одного образца в рамках модуля
+            k+=1
+            avg_duration = (time.time-start_time_module)/k
+            dur_d, not_d = divmod(avg_duration, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
+            dur_h, not_h = divmod(not_d, 3600)
+            dur_m = not_h//60
+            print(f'{k}/{len(samples)}. Est. module completion time: {dur_d} d {dur_h} h {dur_m} m')
+            
+            # Обновляем логи для текущего образца
             log_section.update({sample:sample_result['log']})
             stdout_section.update({sample:sample_result['stdout']})
             stderr_section.update({sample:sample_result['stderr']})

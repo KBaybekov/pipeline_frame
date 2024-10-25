@@ -206,11 +206,11 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     if ex_samples:
         samples = [s for s in samples if 
                  not any(exclusion in os.path.basename(s) for exclusion in ex_samples)]
-    filtered_samples = len(samples)
-    print(f'Найдено {found_samples}, из них будут обрабатываться {filtered_samples}.')
+    len_samples = len(samples)
     # Если итоговый список пустой, выдаём ошибку
     if not samples:
         raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
+    print(f'Найдено {found_samples}, из них будут обрабатываться {len_samples}.')
     # Возвращаем полный путь к каждому файлу
     return samples
 
