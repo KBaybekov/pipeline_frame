@@ -338,7 +338,7 @@ def run_command(cmd: str) -> dict:
     
     # Выполняем процесс
     try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
 
     except KeyboardInterrupt:
         print('INTERRUPTED')
