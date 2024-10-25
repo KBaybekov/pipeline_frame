@@ -91,7 +91,9 @@ class CommandExecutor:
             # Вывод статистики по времени, затраченному на обработку одного образца в рамках модуля
             k+=1
             avg_duration = (time.time()-start_time_module)/k
-            dur_d, not_d = divmod(avg_duration, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
+            samples_remain = len(samples) - k
+            est_total_time = avg_duration * samples_remain
+            dur_d, not_d = divmod(est_total_time, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
             dur_h, not_h = divmod(not_d, 3600)
             dur_m = not_h//60
             print(f'{k}/{len(samples)}. Est. module completion time: {dur_d} d {dur_h} h {dur_m} m')
