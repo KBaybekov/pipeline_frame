@@ -339,8 +339,9 @@ def run_cmds(cmds:dict) -> tuple:
                     'stdout':{},
                     'stderr':{}}
     exit_codes = {}
+    status = True
     for title, cmd in cmds.items():
-        status = True
+        
         print(f'\t\t\t{title}:', end='')
 
         # Выполнение команды
