@@ -124,9 +124,9 @@ def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
         'input_dir': input_dir,
         'output_dir': output_dir,
         # Проходим по всем директориям в 'input_dir' и добавляем базовый путь 'input_dir'
-        **{key: os.path.join(input_dir, f'{value}/').replace('//', '/') for key, value in (folders.get('input_dir') or {}).items()},
+        **{key: os.path.join(input_dir, f'{value}/') for key, value in (folders.get('input_dir') or {}).items()},
         # Проходим по всем директориям в 'output_dir' и добавляем базовый путь 'output_dir'
-        **{key: os.path.join(output_dir, f'{value}/').replace('//', '/') for key, value in (folders.get('output_dir') or {}).items()}
+        **{key: os.path.join(output_dir, f'{value}/') for key, value in (folders.get('output_dir') or {}).items()}
     }
     #DEBUG print(folders_with_paths)
     return folders_with_paths
@@ -161,6 +161,7 @@ def generate_cmd_data(args:dict, folders:dict,
     cmd_data['before_batch'] = generate_commands(context=context, cmd_list=cmds_dict['before_batch'], commands=commands)
     # Создаём набор команд для каждого образца
     for sample in samples:
+        sample = sample.replace('//', '/')
         # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
         # Объединяем все переменные в один словарь для подстановки в eval()
