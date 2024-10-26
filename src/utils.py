@@ -388,13 +388,22 @@ def run_command(cmd: str) -> dict:
     return log_data
 
 def get_duration(secs:int, precision:str='s') -> str:
-    if precision not in ['h', 'm', 's']:
+    if precision not in ['d', 'h', 'm', 's']:
         raise ValueError("Неправильное указание уровня точности!")
     d, not_d = divmod(secs, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
     h, not_h = divmod(not_d, 3600)
     m, s = divmod(not_h, 60)
     
+    measures = {'d':d, 'h':h, 'm':m, 's':s}
+    to_string = []
+    # Разряд времени пойдет в результат, если его значение не 0
+    for measure, val in measures.items():
+        if val !=0:
+            to_string.append(f'{val}{measure}')
+        if measure == precision:
+            break
     # Формируем строку и определяем уровни точности
-    time_str = f"{d}d {h}h {m}m {s}s"
-    precisions = {'h': time_str.find('h') + 1, 'm': time_str.find('m') + 1, 's': len(time_str)}
-    return time_str[:precisions[precision]]
+    time_str = " ".join(to_string)
+    if len(time_str) == 0:
+        return (f'< 1{precision}')
+    return time_str
