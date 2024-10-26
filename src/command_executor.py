@@ -18,9 +18,7 @@ class CommandExecutor:
                      'stdout':load_yaml(file_path=log_space['stdout_log']),
                      'stderr':load_yaml(file_path=log_space['stderr_log'])}
         self.cmd_data = cmd_data
-        self.log = log_space['log_data']
-        self.stdout = log_space['stdout_log']
-        self.stderr = log_space['stderr_log']
+        self.log_space = log_space
         self.module = module
         self.module_start_time = datetime.now().strftime("%d.%m.%Y_%H:%M:%S")
 
@@ -59,7 +57,7 @@ class CommandExecutor:
                 samples_result_dict['samples'][module_stage]['programms'].update(exit_codes)
 
                 # Обновляем логи
-                log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.logs,
+                log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log_space,
                                                                           log=log_section, stdout=stdout_section, stderr=stderr_section,
                                                                           unit=module_stage, unit_result=unit_result)
             else:
@@ -76,7 +74,7 @@ class CommandExecutor:
                     unit_result, exit_codes, status = run_cmds(cmds=cmds)
 
                     # Обновляем логи
-                    log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.logs,
+                    log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log,
                                                                             log=log_section, stdout=stdout_section, stderr=stderr_section,
                                                                             unit=module_stage, unit_result=unit_result)
                                         

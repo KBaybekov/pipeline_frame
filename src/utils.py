@@ -369,7 +369,6 @@ def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dic
     log.update({unit:unit_result['log']})
     stdout.update({unit:unit_result['stdout']})
     stderr.update({unit:unit_result['stderr']})
-    print(log_space)
     # Сохраняем обновлённые данные в YAML
     update_yaml(file_path=log_space['log_data'], new_data=all_logs['log'])
     update_yaml(file_path=log_space['stdout_log'], new_data=all_logs['stdout'])
