@@ -362,8 +362,9 @@ def run_command(cmd: str) -> dict:
                 }
         return log_data
 
-    # Время завершения (общее)
-    duration = time.time() - start_time
+    # Время выполнения (общее)
+    duration_sec = int(time.time() - start_time)
+    duration = get_duration(secs=duration_sec, precision='s')
     # Время процессора в конце
     cpu_duration = time.process_time() - cpu_start_time
     # Текущее время завершения
@@ -375,7 +376,8 @@ def run_command(cmd: str) -> dict:
                 {'status': 'OK' if result.returncode == 0 else 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
-                'duration_sec': int(duration),
+                'duration': duration,
+                'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
                 'exit_code': result.returncode},
                 'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
@@ -383,3 +385,15 @@ def run_command(cmd: str) -> dict:
                 }    
 
     return log_data
+
+def get_duration(secs:int, precision:str='s') -> str:
+    if precision not in ['h', 'm', 's']:
+        raise ValueError("Неправильное указание уровня точности!")
+    d, not_d = divmod(secs, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
+    h, not_h = divmod(not_d, 3600)
+    m, s = divmod(not_h, 60)
+    
+    # Формируем строку и определяем уровни точности
+    time_str = f"{d}d {h}h {m}m {s}s"
+    precisions = {'h': time_str.find('h') + 1, 'm': time_str.find('m') + 1, 's': len(time_str)}
+    return time_str[:precisions[precision]]
