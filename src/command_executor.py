@@ -59,7 +59,7 @@ class CommandExecutor:
                 samples_result_dict['samples'][module_stage]['programms'].update(exit_codes)
 
                 # Обновляем логи
-                log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log,
+                log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.logs,
                                                                           log=log_section, stdout=stdout_section, stderr=stderr_section,
                                                                           unit=module_stage, unit_result=unit_result)
             else:
@@ -76,7 +76,7 @@ class CommandExecutor:
                     unit_result, exit_codes, status = run_cmds(cmds=cmds)
 
                     # Обновляем логи
-                    log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log,
+                    log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.logs,
                                                                             log=log_section, stdout=stdout_section, stderr=stderr_section,
                                                                             unit=module_stage, unit_result=unit_result)
                                         
