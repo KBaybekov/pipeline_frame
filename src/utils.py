@@ -160,6 +160,7 @@ def generate_cmd_data(args:dict, folders:dict,
     # Создаём набор команд, которые выполнятся однократно перед прогоном по образцам
     cmd_data['before_batch'] = generate_commands(context=context, cmd_list=cmds_dict['before_batch'], commands=commands)
     # Создаём набор команд для каждого образца
+    cmd_data['batch'] = {}
     for sample in samples:
         sample = sample.replace('//', '/')
         # Генерируем файлы для конкретного образца
@@ -170,7 +171,7 @@ def generate_cmd_data(args:dict, folders:dict,
         cmds = generate_commands(context=context, cmd_list=cmds_dict['sample_level'], commands=commands)
         
         # Добавляем сгенерированные команды в словарь для текущего образца
-        cmd_data[sample_filenames['basename']] = cmds
+        cmd_data['batch'][sample_filenames['basename']] = cmds
 
     # Создаём набор команд, которые выполнятся однократно после прогона по образцам
     cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
@@ -329,6 +330,54 @@ def create_paths(paths: list):
             raise SystemExit(f"Невозможно создать путь: {path}")
 
 
+def run_cmds(cmds:dict) -> tuple:
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    WHITE ="\033[37m"
+    
+    unit_result = {'log':{},
+                    'stdout':{},
+                    'stderr':{}}
+    exit_codes = {}
+    for title, cmd in cmds.items():
+        print(f'\t\t\t{title}:', end='')
+
+        # Выполнение команды
+        run_result = run_command(cmd=cmd)
+
+        # Сохранение результатов
+        unit_result['log'][title] = run_result['log']
+        unit_result['stdout'][title] = run_result['stdout']
+        unit_result['stderr'][title] = run_result['stderr']
+        
+        # Логгирование результатов выполнения
+        r = unit_result['log'][title]
+
+        # Проверка успешности выполнения команды
+        if r['status'] == 'FAIL':
+            print(f' {RED}FAIL{WHITE}, exit code: {r["exit_code"]}. ', end='')
+            status = False
+        else:
+            print(f' {GREEN}OK{WHITE}. ', end='')
+        exit_codes.update({title:r["exit_code"]})
+        print(f'Duration: {r["duration"]}.')
+    return (unit_result, exit_codes, status)
+
+
+def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dict, unit:str, unit_result:str) -> tuple:
+    # Обновляем логи для текущего образца
+    log.update({unit:unit_result['log']})
+    stdout.update({unit:unit_result['stdout']})
+    stderr.update({unit:unit_result['stderr']})
+
+    # Сохраняем обновлённые данные в YAML
+    update_yaml(file_path=log_space['log_data'], new_data=all_logs['log'])
+    update_yaml(file_path=log_space['stdout_log'], new_data=all_logs['stdout'])
+    update_yaml(file_path=log_space['stderr_log'], new_data=all_logs['stderr'])
+
+    return (log, stdout, stderr)
+
+
 def run_command(cmd: str) -> dict:
     # Время начала (общее)
     start_time = time.time()
@@ -386,6 +435,7 @@ def run_command(cmd: str) -> dict:
                 }    
 
     return log_data
+
 
 def get_duration(secs:int, precision:str='s') -> str:
     if precision not in ['d', 'h', 'm', 's']:

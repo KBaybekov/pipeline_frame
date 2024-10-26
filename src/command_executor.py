@@ -1,6 +1,6 @@
 from datetime import datetime
 import time
-from src.utils import run_command, load_yaml, update_yaml, get_duration
+from src.utils import load_yaml, gather_logs, get_duration, run_cmds
 
 
 class CommandExecutor:
@@ -29,7 +29,7 @@ class CommandExecutor:
             if f'{self.module}_{self.module_start_time}' not in self.logs[log_type]:
                 self.logs[log_type][f'{self.module}_{self.module_start_time}'] = {}
 
-    def execute(self, samples:list, samples_result_dict:dict) -> dict:
+    def execute(self, module_stages:list, samples_result_dict:dict) -> dict:
         """
         Выполняет команды для списка образцов.
         
@@ -38,71 +38,53 @@ class CommandExecutor:
         """
         cmds:dict
         # Цвета!
-        RED = "\033[31m"
-        GREEN = "\033[32m"
         YELLOW = "\033[33m"
         WHITE ="\033[37m"
+        PURPLE = "\033[35m"
         
         # Получаем раздел логов для текущего модуля
         log_section = self.logs['log'][f'{self.module}_{self.module_start_time}']
         stdout_section = self.logs['stdout'][f'{self.module}_{self.module_start_time}']
         stderr_section = self.logs['stderr'][f'{self.module}_{self.module_start_time}']
         
-        # Счётчик отработанных образцов
-        k = 0
         start_time_module = time.time()
-        for sample in samples:
-            samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
-            s = samples_result_dict['samples'][sample]
-            
-            print(f'\tSample: {YELLOW}{sample}{WHITE}')
+        for module_stage in module_stages:
+            print(f'\tStage: {PURPLE}{module_stage}{WHITE}')
+            if module_stage != 'batch':
+                samples_result_dict['samples'][module_stage] = {'status':True, 'programms':{}}
+                # Получаем команды для стадии модуля
+                cmds = self.cmd_data[module_stage]
+                unit_result, exit_codes, status = run_cmds(cmds=cmds)
+                samples_result_dict['samples'][module_stage]['status'] = status
+                samples_result_dict['samples'][module_stage]['programms'].update(exit_codes)
 
-            # Получаем команды для текущего образца
-            cmds = self.cmd_data[sample]
+                # Обновляем логи
+                log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log,
+                                                                          log=log_section, stdout=stdout_section, stderr=stderr_section,
+                                                                          unit=module_stage, unit_result=unit_result)
+            else:
+                # Счётчик отработанных образцов
+                k = 0
+                samples = self.cmd_data[module_stage].keys()
+                for sample in samples:
+                    samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
+                    #s = samples_result_dict['samples'][sample]
+                    print(f'\t\tSample: {YELLOW}{sample}{WHITE}')
 
-            sample_result = {'log':{},
-                             'stdout':{},
-                             'stderr':{}}
+                    # Получаем команды для текущего образца
+                    cmds = self.cmd_data[module_stage][sample]
+                    unit_result, exit_codes, status = run_cmds(cmds=cmds)
 
-            for title, cmd in cmds.items():
-                print(f'\t\t{title}:', end='')
-
-                # Выполнение команды
-                run_result = run_command(cmd=cmd)
-
-                # Сохранение результатов
-                sample_result['log'][title] = run_result['log']
-                sample_result['stdout'][title] = run_result['stdout']
-                sample_result['stderr'][title] = run_result['stderr']
-                
-                # Логгирование результатов выполнения
-                r = sample_result['log'][title]
-
-                # Проверка успешности выполнения команды
-                if r['status'] == 'FAIL':
-                    print(f' {RED}FAIL{WHITE}, exit code: {r["exit_code"]}. ', end='')
-                    samples_result_dict['status'] = False
-                else:
-                    print(f' {GREEN}OK{WHITE}. ', end='')
-                s['programms'].update({title:r["exit_code"]})
-
-                print(f'Duration: {r["duration"]}.')
-            
-            # Вывод статистики по времени, затраченному на обработку одного образца в рамках модуля
-            k+=1
-            avg_duration = (time.time()-start_time_module)/k
-            samples_remain = len(samples) - k
-            est_total_time = get_duration(secs=int(avg_duration * samples_remain), precision='m')
-            print(f'{k}/{len(samples)}. Est. module completion time: {est_total_time}')
-            
-            # Обновляем логи для текущего образца
-            log_section.update({sample:sample_result['log']})
-            stdout_section.update({sample:sample_result['stdout']})
-            stderr_section.update({sample:sample_result['stderr']})
-
-            # Сохраняем обновлённые данные в YAML
-            update_yaml(file_path=self.log, new_data=self.logs['log'])
-            update_yaml(file_path=self.stdout, new_data=self.logs['stdout'])
-            update_yaml(file_path=self.stderr, new_data=self.logs['stderr'])
-
+                    # Обновляем логи
+                    log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log,
+                                                                            log=log_section, stdout=stdout_section, stderr=stderr_section,
+                                                                            unit=module_stage, unit_result=unit_result)
+                                        
+                    # Вывод статистики по времени, затраченному на обработку одного образца в рамках модуля
+                    k+=1
+                    avg_duration = (time.time()-start_time_module)/k
+                    samples_remain = len(samples) - k
+                    est_total_time = get_duration(secs=int(avg_duration * samples_remain), precision='m')
+                    print(f'{k}/{len(samples)}. Est. module completion time: {est_total_time} ')
+                    
         return samples_result_dict
