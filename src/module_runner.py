@@ -30,7 +30,7 @@ class ModuleRunner:
         WHITE ="\033[37m"
 
         # Загружаем данные о модуле в пространство класса
-        self.load_module(data=self.modules_template[module], input_dir=self.input_dir, output_dir=self.output_dir)
+        self.load_module(data=self.modules_template[module], input_dir=self.input_dir, output_dir=self.output_dir, debug=self.debug)
 
         # В зависимости от того, запущен модуль в одиночку либо перед ним отработал другой модуль, определяем папку входных данных
         if self.module_before in self.modules:
@@ -73,11 +73,13 @@ class ModuleRunner:
         return module_result_dict
         
 
-    def load_module(self, data:dict, input_dir:str, output_dir:str):
+    def load_module(self, data:dict, input_dir:str, output_dir:str, debug:bool):
         """
         Загружает данные о модуле, обрабатывает их с использованием переменных в пространстве класса и\
                 добавляет их в пространство объекта класса.
         """
+        if debug:
+            print('YAML_DATA', data)
         # Составляем полные пути для папок
         data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir, debug=self.debug)
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
