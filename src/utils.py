@@ -129,7 +129,7 @@ def get_paths(folders: dict, input_dir: str, output_dir: str, debug:bool) -> dic
         **{key: os.path.join(output_dir, f'{value}/') for key, value in (folders.get('output_dir') or {}).items()}
     }
     if debug:
-        print(folders_with_paths)
+        print('FOLDERS', folders_with_paths)
     return folders_with_paths
 
 
@@ -177,7 +177,7 @@ def generate_cmd_data(args:dict, folders:dict,
     # Создаём набор команд, которые выполнятся однократно после прогона по образцам
     cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
     if debug:
-        print(cmd_data)
+        print('CMD_DATA_in_func', cmd_data)
     return cmd_data
 
 
