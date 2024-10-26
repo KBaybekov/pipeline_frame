@@ -6,7 +6,7 @@ import os
 class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         self.cmds_template:dict
-        self.demo:str
+        self.debug:bool
         self.executables:dict
         self.exclude_samples:list
         self.include_samples:list
@@ -42,13 +42,13 @@ class ModuleRunner:
         self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
                                             input_dir=self.input_dir, extensions=self.source_extensions, subfolders=self.subfolders)
         # Генеририруем команды
-        self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders,
+        self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders, debug=self.debug,
                                     executables=self.executables, filenames=self.filenames,
                                     cmds_dict=self.commands, commands=self.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', self.log_dir, self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение
-        if self.demo == 'yes':
+        if self.debug:
             print(self.cmd_data)
             return module_result_dict
 
@@ -77,7 +77,7 @@ class ModuleRunner:
                 добавляет их в пространство объекта класса.
         """
         # Составляем полные пути для папок
-        data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir)
+        data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir, debug=self.debug)
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
             if key == 'source_extensions':
