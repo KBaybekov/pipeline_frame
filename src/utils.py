@@ -379,6 +379,8 @@ def run_cmds(cmds:dict) -> tuple:
             if exit_code == 'INTERRUPTED':
                 interruption = True
                 return (unit_result, exit_codes, status, interruption)
+            if exit_code == 'TIMEOUT':
+                return (unit_result, exit_codes, status, interruption)
     return (unit_result, exit_codes, status, interruption)
 
 
@@ -420,7 +422,7 @@ def run_command(cmd: str, timeout:int=0) -> dict:
                 'duration': duration,
                 'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 'INTERRUPTED'
+                'exit_code': "TIMEOUT"
             },
             'stderr': "TIMEOUT",
             'stdout': "TIMEOUT"
