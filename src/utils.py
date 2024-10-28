@@ -420,7 +420,7 @@ def run_command(cmd: str, timeout:int=0) -> dict:
                 'duration': duration,
                 'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': "TIMEOUT"
+                'exit_code': 'INTERRUPTED'
             },
             'stderr': "TIMEOUT",
             'stdout': "TIMEOUT"
