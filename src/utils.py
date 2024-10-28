@@ -401,47 +401,68 @@ def run_command(cmd: str, timeout:int=0) -> dict:
     cpu_start_time = time.process_time()
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
-    try:
-        if timeout != 0:
+    
+    if timeout != 0:
+        try:
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash", timeout=timeout)
-        else:
+        except subprocess.TimeoutExpired:
+            duration = time.time() - start_time
+            cpu_duration = time.process_time() - cpu_start_time
+            end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            # Лог при тайм-ауте
+            return {
+                'log': {
+                    'status': 'FAIL',
+                    'start_time': start_datetime,
+                    'end_time': end_datetime,
+                    'duration_sec': round(duration, 0),
+                    'cpu_duration_sec': round(cpu_duration, 2),
+                    'exit_code': 121212
+                },
+                'stderr': f'{result.stderr.strip() if result.stderr else ""}\n"TIMEOUT"',
+                'stdout': result.stdout.strip() if result.stdout else ''
+            }
+        except KeyboardInterrupt:
+            print('INTERRUPTED')
+            # Время завершения (общее)
+            duration = time.time() - start_time
+            # Время процессора в конце
+            cpu_duration = time.process_time() - cpu_start_time
+            # Текущее время завершения
+            end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            return {
+                'log':
+                    {'status': 'FAIL',
+                    'start_time':start_datetime,
+                    'end_time':end_datetime,
+                    'duration_sec': round(duration, 0),
+                    'cpu_duration_sec': round(cpu_duration, 2),
+                    'exit_code': 'INTERRUPTED'},
+                    'stderr': 'INTERRUPTED',  
+                    'stdout': 'INTERRUPTED'   
+                    }
+    else:
+        try:
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
-    except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
-        cpu_duration = time.process_time() - cpu_start_time
-        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        # Лог при тайм-ауте
-        return {
-            'log': {
-                'status': 'FAIL',
-                'start_time': start_datetime,
-                'end_time': end_datetime,
-                'duration_sec': round(duration, 0),
-                'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 121212
-            },
-            'stderr': f'{result.stderr.strip() if result.stderr else ""}\n"TIMEOUT"',
-            'stdout': result.stdout.strip() if result.stdout else ''
-        }
-    except KeyboardInterrupt:
-        print('INTERRUPTED')
-        # Время завершения (общее)
-        duration = time.time() - start_time
-        # Время процессора в конце
-        cpu_duration = time.process_time() - cpu_start_time
-        # Текущее время завершения
-        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        return {
-            'log':
-                {'status': 'FAIL',
-                'start_time':start_datetime,
-                'end_time':end_datetime,
-                'duration_sec': round(duration, 0),
-                'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 'INTERRUPTED'},
-                'stderr': 'INTERRUPTED',  
-                'stdout': 'INTERRUPTED'   
-                }
+        except KeyboardInterrupt:
+            print('INTERRUPTED')
+            # Время завершения (общее)
+            duration = time.time() - start_time
+            # Время процессора в конце
+            cpu_duration = time.process_time() - cpu_start_time
+            # Текущее время завершения
+            end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            return {
+                'log':
+                    {'status': 'FAIL',
+                    'start_time':start_datetime,
+                    'end_time':end_datetime,
+                    'duration_sec': round(duration, 0),
+                    'cpu_duration_sec': round(cpu_duration, 2),
+                    'exit_code': 'INTERRUPTED'},
+                    'stderr': 'INTERRUPTED',  
+                    'stdout': 'INTERRUPTED'   
+                    }
     
 
     # Время завершения (общее)
