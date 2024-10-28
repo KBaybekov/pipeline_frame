@@ -407,7 +407,8 @@ def run_command(cmd: str, timeout:int=0) -> dict:
         else:
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
     except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
+        duration_sec = int(time.time() - start_time)
+        duration = get_duration(secs=duration_sec, precision='s')
         cpu_duration = time.process_time() - cpu_start_time
         end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
         # Лог при тайм-ауте
@@ -416,7 +417,8 @@ def run_command(cmd: str, timeout:int=0) -> dict:
                 'status': 'FAIL',
                 'start_time': start_datetime,
                 'end_time': end_datetime,
-                'duration_sec': round(duration, 0),
+                'duration': duration,
+                'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
                 'exit_code': "TIMEOUT"
             },
@@ -426,7 +428,8 @@ def run_command(cmd: str, timeout:int=0) -> dict:
     except KeyboardInterrupt:
         print('INTERRUPTED')
         # Время завершения (общее)
-        duration = time.time() - start_time
+        duration_sec = int(time.time() - start_time)
+        duration = get_duration(secs=duration_sec, precision='s')
         # Время процессора в конце
         cpu_duration = time.process_time() - cpu_start_time
         # Текущее время завершения
@@ -436,7 +439,8 @@ def run_command(cmd: str, timeout:int=0) -> dict:
                 {'status': 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
-                'duration_sec': round(duration, 0),
+                'duration': duration,
+                'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
                 'exit_code': 'INTERRUPTED'},
                 'stderr': 'INTERRUPTED',  
