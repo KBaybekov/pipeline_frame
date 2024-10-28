@@ -418,7 +418,7 @@ def run_command(cmd: str, timeout:int=0) -> dict:
                 'end_time': end_datetime,
                 'duration_sec': round(duration, 0),
                 'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 121212
+                'exit_code': "TIMEOUT"
             },
             'stderr': "TIMEOUT",
             'stdout': "TIMEOUT"
