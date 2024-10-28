@@ -299,16 +299,22 @@ def generate_commands(context:dict,
 
     # Проходим по каждому ключу в filenames и вычисляем значение
     errors = 0
-    for key, instruction in commands.items():
+    for key, cmd_instructions in commands.items():
+        if type(cmd_instructions) == list:
+            timeout = cmd_instructions[0]
+            instruction = cmd_instructions[1]
+        else:
+            timeout = 0
+            instruction = cmd_instructions
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
             try:
                 # Если команда требует выполнения как Python-код (например, f-строки), используем eval(), подставляя доступные переменные
                 if instruction.startswith(("f'", 'f"')):
-                    generated_cmds[key] = eval(instruction, context)
+                    generated_cmds[key] = [eval(instruction, context), timeout]
                 else:
                     # Если это обычная строка, просто сохраняем её без eval
-                    generated_cmds[key] = instruction
+                    generated_cmds[key] = [instruction, timeout]
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
                 print(instruction)
@@ -343,12 +349,15 @@ def run_cmds(cmds:dict) -> tuple:
                     'stderr':{}}
     exit_codes = {}
     status = True
-    for title, cmd in cmds.items():
-        
+    interruption = False
+    for title, cmd_opts in cmds.items():
+        cmd = cmd_opts[0]
+        timeout = cmd_opts[1]
+
         print(f'\t\t\t{title}:', end='')
 
         # Выполнение команды
-        run_result = run_command(cmd=cmd)
+        run_result = run_command(cmd=cmd, timeout=timeout)
 
         # Сохранение результатов
         unit_result['log'][title] = run_result['log']
@@ -366,7 +375,10 @@ def run_cmds(cmds:dict) -> tuple:
             print(f' {GREEN}OK{WHITE}. ', end='')
         exit_codes.update({title:r["exit_code"]})
         print(f'Duration: {r["duration"]}.')
-    return (unit_result, exit_codes, status)
+        if 'INTERRUPTED' in exit_codes.values().values():
+            interruption = True
+            return (unit_result, exit_codes, status, interruption)
+    return (unit_result, exit_codes, status, interruption)
 
 
 def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dict, unit:str, unit_result:str) -> tuple:
@@ -382,7 +394,78 @@ def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dic
     return (log, stdout, stderr)
 
 
-def run_command(cmd: str) -> dict:
+def run_command(cmd: str, timeout:int=0) -> dict:
+    # Время начала (общее)
+    start_time = time.time()
+    cpu_start_time = time.process_time()
+    start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+
+    try:
+        if timeout != 0:
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash", timeout=timeout)
+        else:
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
+    except subprocess.TimeoutExpired:
+        duration = time.time() - start_time
+        cpu_duration = time.process_time() - cpu_start_time
+        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        # Лог при тайм-ауте
+        return {
+            'log': {
+                'status': 'FAIL',
+                'start_time': start_datetime,
+                'end_time': end_datetime,
+                'duration_sec': round(duration, 0),
+                'cpu_duration_sec': round(cpu_duration, 2),
+                'exit_code': 121212
+            },
+            'stderr': f'{result.stderr.strip() if result.stderr else ""}\n"TIMEOUT"',
+            'stdout': result.stdout.strip() if result.stdout else ''
+        }
+    except KeyboardInterrupt:
+        print('INTERRUPTED')
+        # Время завершения (общее)
+        duration = time.time() - start_time
+        # Время процессора в конце
+        cpu_duration = time.process_time() - cpu_start_time
+        # Текущее время завершения
+        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        return {
+            'log':
+                {'status': 'FAIL',
+                'start_time':start_datetime,
+                'end_time':end_datetime,
+                'duration_sec': round(duration, 0),
+                'cpu_duration_sec': round(cpu_duration, 2),
+                'exit_code': 'INTERRUPTED'},
+                'stderr': 'INTERRUPTED',  
+                'stdout': 'INTERRUPTED'   
+                }
+    
+
+    # Время завершения (общее)
+    duration_sec = int(time.time() - start_time)
+    duration = get_duration(secs=duration_sec, precision='s')
+    cpu_duration = time.process_time() - cpu_start_time
+    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+
+    # Лог успешного выполнения
+    return {
+        'log': {
+            'status': 'OK' if result.returncode == 0 else 'FAIL',
+            'start_time': start_datetime,
+            'end_time': end_datetime,
+            'duration': duration,
+            'duration_sec': duration_sec,
+            'cpu_duration_sec': round(cpu_duration, 2),
+            'exit_code': result.returncode
+        },
+        'stderr': result.stderr.strip() if result.stderr else '',
+        'stdout': result.stdout.strip() if result.stdout else ''
+    }
+
+
+def run_command_bk(cmd: str) -> dict:
     # Время начала (общее)
     start_time = time.time()
     # Время процессора в начале

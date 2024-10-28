@@ -37,7 +37,6 @@ class ModuleRunner:
             self.input_dir = f'{self.output_dir}/{self.modules_template[self.module_before]["result_dir"]}'
             self.subfolders = False
 
-        
         # Получаем список образцов
         self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
                                             input_dir=self.input_dir, extensions=self.source_extensions, subfolders=self.subfolders)
