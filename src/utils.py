@@ -375,9 +375,10 @@ def run_cmds(cmds:dict) -> tuple:
             print(f' {GREEN}OK{WHITE}. ', end='')
         exit_codes.update({title:r["exit_code"]})
         print(f'Duration: {r["duration"]}.')
-        if 'INTERRUPTED' in exit_codes.values().values():
-            interruption = True
-            return (unit_result, exit_codes, status, interruption)
+        for exit_code_item in exit_codes.values():
+            if exit_codes[exit_code_item] == 'INTERRUPTED':
+                interruption = True
+                return (unit_result, exit_codes, status, interruption)
     return (unit_result, exit_codes, status, interruption)
 
 
