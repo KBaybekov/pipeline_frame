@@ -410,9 +410,10 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
 
     stdout, stderr = "", ""
 
-    try:
-        result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
+    result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
+
+    try:       
         
         # Построчно читаем стандартный вывод и ошибки в зависимости от уровня дебага
         if debug:
