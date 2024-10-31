@@ -133,7 +133,7 @@ class PipelineManager:
             if module in self.modules:
                 print(f'Запуск модуля: {module}')
 
-                result_dict['modules'][module] = {'status': True, 'samples':{}}
+                result_dict['modules'][module] = {'status': True, 'before_batch':{}, 'batch':{}, 'after_batch':{}}
 
                 # Запускаем модуль через ModuleRunner
                 result_dict['modules'][module] = module_runner.run_module(module, result_dict['modules'][module])

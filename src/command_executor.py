@@ -29,12 +29,12 @@ class CommandExecutor:
             if f'{self.module}_{self.module_start_time}' not in self.logs[log_type]:
                 self.logs[log_type][f'{self.module}_{self.module_start_time}'] = {}
 
-    def execute(self, module_stages:list, samples_result_dict:dict) -> dict:
+    def execute(self, module_stages:list, module_result_dict:dict) -> dict:
         """
         Выполняет команды для списка образцов.
         
         :param samples: Список образцов.
-        :param samples_result_dict: Данные о результатах выполнения пайплайна для каждого образца
+        :param module_result_dict: Данные о результатах выполнения пайплайна для каждого образца
         """
         cmds:dict
         # Цвета!
@@ -51,26 +51,26 @@ class CommandExecutor:
         for module_stage in module_stages:
             print(f'\tStage: {PURPLE}{module_stage}{WHITE}')
             if module_stage != 'batch':
-                samples_result_dict['samples'][module_stage] = {'status':True, 'programms':{}}
+                module_result_dict[module_stage] = {'status':True, 'programms':{}}
                 # Получаем команды для стадии модуля
                 cmds = self.cmd_data[module_stage]
                 unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
-                samples_result_dict['samples'][module_stage]['status'] = status
-                samples_result_dict['samples'][module_stage]['programms'].update(exit_codes)
+                module_result_dict[module_stage]['status'] = status
+                module_result_dict[module_stage]['programms'].update(exit_codes)
 
                 # Обновляем логи
                 log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log_space,
                                                                           log=log_section, stdout=stdout_section, stderr=stderr_section,
                                                                           unit=module_stage, unit_result=unit_result)
                 if interruption:
-                    return samples_result_dict
+                    return module_result_dict
             else:
                 # Счётчик отработанных образцов
                 k = 0
                 samples = self.cmd_data[module_stage].keys()
                 for sample in samples:
-                    samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
-                    #s = samples_result_dict['samples'][sample]
+                    module_result_dict[module_stage][sample] = {'status':True, 'programms':{}}
+                    #s = module_result_dict['samples'][sample]
                     print(f'\t\tSample: {YELLOW}{sample}{WHITE}')
 
                     # Получаем команды для текущего образца
@@ -92,4 +92,4 @@ class CommandExecutor:
                     est_total_time = get_duration(secs=int(avg_duration * samples_remain), precision='m')
                     print(f'{k}/{len(samples)}. Est. module completion time: {est_total_time} ')
                     
-        return samples_result_dict
+        return module_result_dict
