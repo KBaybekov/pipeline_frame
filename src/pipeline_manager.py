@@ -24,7 +24,7 @@ class PipelineManager:
         self.include_samples:list
         self.exclude_samples:list
         self.executables: dict
-        self.debug:bool
+        self.debug:list
         self.subfolders:bool
         
         # Добавляем все элементы args как атрибуты класса
@@ -154,5 +154,6 @@ class PipelineManager:
                             print(f'\t{sample}')
                             for programm, exit_code in sample_data.items():
                                 print(f'\t\t{programm}: exit code {exit_code}')'''
-
+        if 'all' in self.debug:
+            print(result_dict)
         save_yaml(filename='status_log', data=result_dict, path=self.log_dir)
