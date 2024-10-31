@@ -7,7 +7,6 @@ class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         self.cmds_template:dict
         self.debug:list
-        self.proc_debug:str
         self.executables:dict
         self.exclude_samples:list
         self.include_samples:list
@@ -20,13 +19,14 @@ class ModuleRunner:
         self.output_dir:str
         self.source_extensions: tuple
         self.subfolders:bool
-        self.timeout_behavior=''
         self.filenames: dict
         self.commands: dict
         self.cmd_data: dict
         self.__dict__= pipeline_manager.__dict__
 
     def run_module(self, module:str, module_result_dict:dict) -> dict:
+        self.timeout_behavior=''
+        self.proc_debug=''
         # Цвета!
         BLUE = "\033[34m"
         WHITE ="\033[37m"
@@ -62,8 +62,6 @@ class ModuleRunner:
                     self.proc_debug = debug_item
             if 'demo' in self.debug:
                 return module_result_dict
-        else:
-            self.proc_debug = ''
 
         # Алиас
         c = self.cmd_data
