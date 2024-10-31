@@ -397,81 +397,6 @@ def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dic
     return (log, stdout, stderr)
 
 
-def run_command_bk(cmd: str, timeout:int=0) -> dict:
-    # Время начала (общее)
-    start_time = time.time()
-    cpu_start_time = time.process_time()
-    start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-    result = launch_subprocess
-    try:
-        if timeout != 0:
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash", timeout=timeout)
-        else:
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
-    except subprocess.TimeoutExpired:
-        duration_sec = int(time.time() - start_time)
-        duration = get_duration(secs=duration_sec, precision='s')
-        cpu_duration = time.process_time() - cpu_start_time
-        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        # Лог при тайм-ауте
-        return {
-            'log': {
-                'status': 'FAIL',
-                'start_time': start_datetime,
-                'end_time': end_datetime,
-                'duration': duration,
-                'duration_sec': duration_sec,
-                'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': "TIMEOUT"
-            },
-            'stderr': "TIMEOUT",
-            'stdout': "TIMEOUT"
-        }
-    except KeyboardInterrupt:
-        print('INTERRUPTED')
-        # Время завершения (общее)
-        duration_sec = int(time.time() - start_time)
-        duration = get_duration(secs=duration_sec, precision='s')
-        # Время процессора в конце
-        cpu_duration = time.process_time() - cpu_start_time
-        # Текущее время завершения
-        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        return {
-            'log':
-                {'status': 'FAIL',
-                'start_time':start_datetime,
-                'end_time':end_datetime,
-                'duration': duration,
-                'duration_sec': duration_sec,
-                'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 'INTERRUPTED'},
-                'stderr': 'INTERRUPTED',  
-                'stdout': 'INTERRUPTED'   
-                }
-    
-
-    # Время завершения (общее)
-    duration_sec = int(time.time() - start_time)
-    duration = get_duration(secs=duration_sec, precision='s')
-    cpu_duration = time.process_time() - cpu_start_time
-    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-
-    # Лог успешного выполнения
-    return {
-        'log': {
-            'status': 'OK' if result.returncode == 0 else 'FAIL',
-            'start_time': start_datetime,
-            'end_time': end_datetime,
-            'duration': duration,
-            'duration_sec': duration_sec,
-            'cpu_duration_sec': round(cpu_duration, 2),
-            'exit_code': result.returncode
-        },
-        'stderr': result.stderr.strip() if result.stderr else '',
-        'stdout': result.stdout.strip() if result.stdout else ''
-    }
-
-
 def run_command(cmd:str, timeout:int, debug:str) -> dict:
     if timeout == 0:
         timeout=None
@@ -480,23 +405,13 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
     cpu_start_time = time.process_time()
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
+    stdout, stderr = "", ""
+
     try:
         result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
         
         # Построчно читаем стандартный вывод и ошибки в зависимости от уровня дебага
-        '''if debug !='':
-            if debug == 'errors':
-                for line in result.stderr:
-                    print("STDERR:", line.strip())
-            if debug == 'info':
-                for line in result.stdout:
-                    print("STDOUT:", line.strip())
-            if debug == 'all':
-                for line in result.stderr:
-                    print("STDERR:", line.strip())
-                for line in result.stdout:
-                    print("STDOUT:", line.strip())'''
         if debug:
             streams = []
             if debug in ['errors', 'all']:
