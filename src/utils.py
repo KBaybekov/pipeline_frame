@@ -420,9 +420,9 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
         if debug:
             streams = []
             if debug in ['errors', 'all']:
-                streams.append(('STDERR', result.stderr))
+                streams.append(('STDERR', stderr.splitlines()))
             if debug in ['info', 'all']:
-                streams.append(('STDOUT', result.stdout))
+                streams.append(('STDOUT', stdout.splitlines()))
 
             for label, stream in streams:
                 for line in stream:
@@ -492,6 +492,7 @@ def get_duration(duration_sec:float=0, start_time:int=0, cpu_start_time:int=0, p
     cpu_duration = time.process_time() - cpu_start_time
     end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     return (duration_sec, time_str, cpu_duration, end_datetime)
+
 
 def convert_secs_to_dhms(secs:int, precision:str='s') -> str:
     # Форматируем секунды в дни, часы и минуты
