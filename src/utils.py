@@ -341,7 +341,7 @@ def create_paths(paths: list):
             raise SystemExit(f"Невозможно создать путь: {path}")
 
 
-def run_cmds(cmds:dict, debug:str) -> tuple:
+def run_cmds(cmds:dict, debug:str, timeout_behavior:str) -> tuple:
     RED = "\033[31m"
     GREEN = "\033[32m"
     WHITE ="\033[37m"
@@ -382,6 +382,8 @@ def run_cmds(cmds:dict, debug:str) -> tuple:
                 interruption = True
                 return (unit_result, exit_codes, status, interruption)
             if exit_code == 'TIMEOUT':
+                if timeout_behavior == 'next':
+                    continue
                 return (unit_result, exit_codes, status, interruption)
     return (unit_result, exit_codes, status, interruption)
 

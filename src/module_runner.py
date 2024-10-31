@@ -20,6 +20,7 @@ class ModuleRunner:
         self.output_dir:str
         self.source_extensions: tuple
         self.subfolders:bool
+        self.timeout_behavior:str=''
         self.filenames: dict
         self.commands: dict
         self.cmd_data: dict
@@ -72,7 +73,7 @@ class ModuleRunner:
 
         # Выполняем команды для каждого образца
         print(f'Module: {BLUE}{module}{WHITE}')
-        module_result_dict = exe.execute(c.keys(), module_result_dict)
+        module_result_dict = exe.execute(c.keys(), module_result_dict, timeout_behavior=self.timeout_behavior)
         
         return module_result_dict
         

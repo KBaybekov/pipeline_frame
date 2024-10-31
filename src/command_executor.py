@@ -29,7 +29,7 @@ class CommandExecutor:
             if f'{self.module}_{self.module_start_time}' not in self.logs[log_type]:
                 self.logs[log_type][f'{self.module}_{self.module_start_time}'] = {}
 
-    def execute(self, module_stages:list, module_result_dict:dict) -> dict:
+    def execute(self, module_stages:list, module_result_dict:dict, timeout_behavior:str='') -> dict:
         """
         Выполняет команды для списка образцов.
         
@@ -78,7 +78,7 @@ class CommandExecutor:
 
                     # Получаем команды для текущего образца
                     cmds = self.cmd_data[module_stage][sample]
-                    unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
+                    unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug, timeout_behavior=timeout_behavior)
                     if any(code != 0 for code in exit_codes.values()):
                         module_result_dict[module_stage][sample]['status'] = False
                         module_result_dict['status'] = False
