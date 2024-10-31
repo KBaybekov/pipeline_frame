@@ -7,7 +7,7 @@ class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         self.cmds_template:dict
         self.debug:list
-        self.proc_debug:str=''
+        self.proc_debug:str
         self.executables:dict
         self.exclude_samples:list
         self.include_samples:list
@@ -62,6 +62,8 @@ class ModuleRunner:
                     self.proc_debug = debug_item
             if 'demo' in self.debug:
                 return module_result_dict
+        else:
+            self.proc_debug = ''
 
         # Алиас
         c = self.cmd_data
