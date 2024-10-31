@@ -402,6 +402,7 @@ def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dic
 def run_command(cmd:str, timeout:int, debug:str) -> dict:
     if timeout == 0:
         timeout=None
+    print(timeout, '=TIMEOUT')
     # Время начала (общее)
     start_time = time.time()
     cpu_start_time = time.process_time()
