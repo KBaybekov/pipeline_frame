@@ -21,7 +21,6 @@ def parse_initial_args():
     """
     parser = argparse.ArgumentParser(description="Initial argument parser")
     parser.add_argument('-pp', '--project_path', required=True, help="Путь для загрузки конфигурационных файлов")
-    parser.add_argument('-db', '--debug', default=[], help="Уровень дебага (all, cmd_tpl, samples, cmds, errors, info)")
     
     # Используем parse_known_args, чтобы собрать только --project_path и передать остальные аргументы позже
     args, remaining_args = parser.parse_known_args()
