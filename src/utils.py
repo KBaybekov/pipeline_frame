@@ -510,7 +510,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
 
         # Ожидаем завершения с таймаутом
         stdout, stderr = result.communicate(timeout=timeout)
-        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+        duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
 
         # Лог успешного выполнения
         return {
@@ -529,7 +529,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
 
     except subprocess.TimeoutExpired:
         result.kill()
-        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+        duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
         # Лог при тайм-ауте
         return {
             'log': {
@@ -547,7 +547,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
     except KeyboardInterrupt:
         result.kill()
         print('INTERRUPTED')
-        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+        duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
         return {
             'log':
                 {'status': 'FAIL',
