@@ -562,14 +562,22 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
                 }
     
 
-def get_duration(start_time:int, cpu_start_time:int, precision:str='s') -> tuple:
+def get_duration(precision:str, duration_sec:float=0, start_time:int=0, cpu_start_time:int=0) -> tuple:
     # Время завершения (общее)
     duration_sec = int(time.time() - start_time)
     
     # Форматируем секунды в дни, часы и минуты
+    time_str = convert_secs_to_dhms(secs=duration_sec, precision=precision)
+
+    cpu_duration = time.process_time() - cpu_start_time
+    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    return (duration_sec, time_str, cpu_duration, end_datetime)
+
+def convert_secs_to_dhms(secs:int, precision:str='s') -> str:
+    # Форматируем секунды в дни, часы и минуты
     if precision not in ['d', 'h', 'm', 's']:
         raise ValueError("Неправильное указание уровня точности!")
-    d, not_d = divmod(duration_sec, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
+    d, not_d = divmod(secs, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
     h, not_h = divmod(not_d, 3600)
     m, s = divmod(not_h, 60)
     measures = {'d':d, 'h':h, 'm':m, 's':s}
@@ -584,8 +592,4 @@ def get_duration(start_time:int, cpu_start_time:int, precision:str='s') -> tuple
     time_str = " ".join(to_string)
     if len(time_str) == 0:
         time_str = (f'< 1{precision}')
-
-    cpu_duration = time.process_time() - cpu_start_time
-    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-    
-    return (duration_sec, time_str, cpu_duration, end_datetime)
+    return time_str

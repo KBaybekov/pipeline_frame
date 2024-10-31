@@ -1,6 +1,6 @@
 from datetime import datetime
 import time
-from src.utils import load_yaml, gather_logs, get_duration, run_cmds
+from src.utils import load_yaml, gather_logs, convert_secs_to_dhms, run_cmds
 
 
 class CommandExecutor:
@@ -89,7 +89,7 @@ class CommandExecutor:
                     k+=1
                     avg_duration = (time.time()-start_time_module)/k
                     samples_remain = len(samples) - k
-                    est_total_time = get_duration(secs=int(avg_duration * samples_remain), precision='m')
+                    est_total_time = convert_secs_to_dhms(secs=int(avg_duration * samples_remain), precision='m')
                     print(f'{k}/{len(samples)}. Est. module completion time: {est_total_time} ')
                     
         return module_result_dict
