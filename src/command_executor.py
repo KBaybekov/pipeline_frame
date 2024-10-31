@@ -54,7 +54,7 @@ class CommandExecutor:
                 module_result_dict[module_stage] = {'status':True, 'programms':{}}
                 # Получаем команды для стадии модуля
                 cmds = self.cmd_data[module_stage]
-                unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
+                unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug, timeout_behavior=timeout_behavior)
                 if any(code != 0 for code in exit_codes.values()):
                         module_result_dict[module_stage]['status'] = False
                         module_result_dict['status'] = False
