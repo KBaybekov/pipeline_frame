@@ -414,7 +414,8 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
                                 universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
 
     try:       
-        
+        # Ожидаем завершения с таймаутом
+        stdout, stderr = result.communicate(timeout=timeout)
         # Построчно читаем стандартный вывод и ошибки в зависимости от уровня дебага
         if debug:
             streams = []
@@ -427,8 +428,6 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
                 for line in stream:
                     print(f"{label}: {line.strip()}")
 
-        # Ожидаем завершения с таймаутом
-        stdout, stderr = result.communicate(timeout=timeout)
         duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
 
         # Лог успешного выполнения
@@ -449,6 +448,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
     except subprocess.TimeoutExpired:
         print('FUCK!')
         result.kill()
+        stdout, stderr = result.communicate()
         duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
         # Лог при тайм-ауте
         return {
