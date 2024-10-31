@@ -299,26 +299,28 @@ def generate_commands(context:dict,
 
     # Проходим по каждому ключу в filenames и вычисляем значение
     errors = 0
-    for key, cmd_instructions in commands.items():
+
+    for key in cmd_list:
+        cmd_instructions = commands[key]
         if type(cmd_instructions) == list:
             timeout = cmd_instructions[0]
             instruction = cmd_instructions[1]
         else:
             timeout = 0
             instruction = cmd_instructions
-        if key in cmd_list:
-            # Используем eval() для вычисления выражений в строках
-            try:
-                # Если команда требует выполнения как Python-код (например, f-строки), используем eval(), подставляя доступные переменные
-                if instruction.startswith(("f'", 'f"')):
-                    generated_cmds[key] = [eval(instruction, context), timeout]
-                else:
-                    # Если это обычная строка, просто сохраняем её без eval
-                    generated_cmds[key] = [instruction, timeout]
-            except Exception as e:
-                print(f"Ошибка при обработке {key}: {e}")
-                print(instruction)
-                errors += 1
+
+        # Используем eval() для вычисления выражений в строках
+        try:
+            # Если команда требует выполнения как Python-код (например, f-строки), используем eval(), подставляя доступные переменные
+            if instruction.startswith(("f'", 'f"')):
+                generated_cmds[key] = [eval(instruction, context), timeout]
+            else:
+                # Если это обычная строка, просто сохраняем её без eval
+                generated_cmds[key] = [instruction, timeout]
+        except Exception as e:
+            print(f"Ошибка при обработке {key}: {e}")
+            print(instruction)
+            errors += 1
     if errors > 0:
         exit(code=1)
     return generated_cmds
