@@ -339,7 +339,7 @@ def create_paths(paths: list):
             raise SystemExit(f"Невозможно создать путь: {path}")
 
 
-def run_cmds(cmds:dict) -> tuple:
+def run_cmds(cmds:dict, debug:str) -> tuple:
     RED = "\033[31m"
     GREEN = "\033[32m"
     WHITE ="\033[37m"
@@ -357,7 +357,7 @@ def run_cmds(cmds:dict) -> tuple:
         print(f'\t\t\t{title}:', end='')
 
         # Выполнение команды
-        run_result = run_command(cmd=cmd, timeout=timeout)
+        run_result = run_command(cmd=cmd, timeout=timeout, debug=debug)
 
         # Сохранение результатов
         unit_result['log'][title] = run_result['log']
@@ -397,12 +397,12 @@ def gather_logs(all_logs:dict, log_space:dict, log:dict, stdout:dict, stderr:dic
     return (log, stdout, stderr)
 
 
-def run_command(cmd: str, timeout:int=0) -> dict:
+def run_command_bk(cmd: str, timeout:int=0) -> dict:
     # Время начала (общее)
     start_time = time.time()
     cpu_start_time = time.process_time()
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-
+    result = launch_subprocess
     try:
         if timeout != 0:
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash", timeout=timeout)
@@ -472,72 +472,106 @@ def run_command(cmd: str, timeout:int=0) -> dict:
     }
 
 
-def run_command_bk(cmd: str) -> dict:
+def run_command(cmd:str, timeout:int, debug:str) -> dict:
+    if timeout == 0:
+        timeout=None
     # Время начала (общее)
     start_time = time.time()
-    # Время процессора в начале
     cpu_start_time = time.process_time()
-    # Текущее время
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-    
-    # Выполняем процесс
-    try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, executable="/bin/bash")
 
+    try:
+        result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
+        
+        # Построчно читаем стандартный вывод и ошибки в зависимости от уровня дебага
+        '''if debug !='':
+            if debug == 'errors':
+                for line in result.stderr:
+                    print("STDERR:", line.strip())
+            if debug == 'info':
+                for line in result.stdout:
+                    print("STDOUT:", line.strip())
+            if debug == 'all':
+                for line in result.stderr:
+                    print("STDERR:", line.strip())
+                for line in result.stdout:
+                    print("STDOUT:", line.strip())'''
+        if debug:
+            streams = []
+            if debug in ['errors', 'all']:
+                streams.append(('STDERR', result.stderr))
+            if debug in ['info', 'all']:
+                streams.append(('STDOUT', result.stdout))
+
+            for label, stream in streams:
+                for line in stream:
+                    print(f"{label}: {line.strip()}")
+
+        # Ожидаем завершения с таймаутом
+        stdout, stderr = result.communicate(timeout=timeout)
+        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+
+        # Лог успешного выполнения
+        return {
+            'log': {
+                'status': 'OK' if result.returncode == 0 else 'FAIL',
+                'start_time': start_datetime,
+                'end_time': end_datetime,
+                'duration': duration,
+                'duration_sec': duration_sec,
+                'cpu_duration_sec': round(cpu_duration, 2),
+                'exit_code': result.returncode
+            },
+            'stderr': stderr.strip() if stderr else '',
+            'stdout': stdout.strip() if stdout else ''
+        }
+
+    except subprocess.TimeoutExpired:
+        result.kill()
+        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+        # Лог при тайм-ауте
+        return {
+            'log': {
+                'status': 'FAIL',
+                'start_time': start_datetime,
+                'end_time': end_datetime,
+                'duration': duration,
+                'duration_sec': duration_sec,
+                'cpu_duration_sec': round(cpu_duration, 2),
+                'exit_code': "TIMEOUT"
+            },
+            'stderr': stderr.strip() if stderr else '',
+            'stdout': stdout.strip() if stdout else ''
+        }
     except KeyboardInterrupt:
+        result.kill()
         print('INTERRUPTED')
-        exit(1)
-        # Время завершения (общее)
-        duration = time.time() - start_time
-        # Время процессора в конце
-        cpu_duration = time.process_time() - cpu_start_time
-        # Текущее время завершения
-        end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        log_data = {
+        duration_sec, duration, cpu_duration, end_datetime = get_duration()
+        return {
             'log':
                 {'status': 'FAIL',
-                'start_time':start_datetime,
-                'end_time':end_datetime,
-                'duration_sec': round(duration, 0),
-                'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': 'INTERRUPTED'},
-                'stderr': 'INTERRUPTED',  
-                'stdout': 'INTERRUPTED'   
-                }
-        return log_data
-
-    # Время выполнения (общее)
-    duration_sec = int(time.time() - start_time)
-    duration = get_duration(secs=duration_sec, precision='s')
-    # Время процессора в конце
-    cpu_duration = time.process_time() - cpu_start_time
-    # Текущее время завершения
-    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-
-    # Логгирование
-    log_data = {
-            'log':
-                {'status': 'OK' if result.returncode == 0 else 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
                 'duration': duration,
                 'duration_sec': duration_sec,
                 'cpu_duration_sec': round(cpu_duration, 2),
-                'exit_code': result.returncode},
-                'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
-                'stdout': result.stdout.strip() if result.stdout else ''   # Убираем лишние пробелы
-                }    
+                'exit_code': 'INTERRUPTED'},
+            'stderr': stderr.strip() if stderr else '',
+            'stdout': stdout.strip() if stdout else ''   
+                }
+    
 
-    return log_data
-
-
-def get_duration(secs:int, precision:str='s') -> str:
+def get_duration(start_time:int, cpu_start_time:int, precision:str='s') -> tuple:
+    # Время завершения (общее)
+    duration_sec = int(time.time() - start_time)
+    
+    # Форматируем секунды в дни, часы и минуты
     if precision not in ['d', 'h', 'm', 's']:
         raise ValueError("Неправильное указание уровня точности!")
-    d, not_d = divmod(secs, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
+    d, not_d = divmod(duration_sec, 86400) # Возвращает кортеж из целого частного и остатка деления первого числа на второе
     h, not_h = divmod(not_d, 3600)
     m, s = divmod(not_h, 60)
-    
     measures = {'d':d, 'h':h, 'm':m, 's':s}
     to_string = []
     # Разряд времени пойдет в результат, если его значение не 0
@@ -549,5 +583,9 @@ def get_duration(secs:int, precision:str='s') -> str:
     # Формируем строку и определяем уровни точности
     time_str = " ".join(to_string)
     if len(time_str) == 0:
-        return (f'< 1{precision}')
-    return time_str
+        time_str = (f'< 1{precision}')
+
+    cpu_duration = time.process_time() - cpu_start_time
+    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    
+    return (duration_sec, time_str, cpu_duration, end_datetime)

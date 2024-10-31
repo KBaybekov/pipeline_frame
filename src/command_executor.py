@@ -4,7 +4,7 @@ from src.utils import load_yaml, gather_logs, get_duration, run_cmds
 
 
 class CommandExecutor:
-    def __init__(self, cmd_data:dict, log_space:dict, module:str):
+    def __init__(self, cmd_data:dict, log_space:dict, module:str, debug:str):
         """
         Инициализация CommandExecutor.
         
@@ -13,7 +13,9 @@ class CommandExecutor:
         :param module: Название модуля.
         """
         self.logs:dict
+        self.debug:str
 
+        self.debug = debug
         self.logs = {'log':load_yaml(file_path=log_space['log_data']),
                      'stdout':load_yaml(file_path=log_space['stdout_log']),
                      'stderr':load_yaml(file_path=log_space['stderr_log'])}
@@ -52,7 +54,7 @@ class CommandExecutor:
                 samples_result_dict['samples'][module_stage] = {'status':True, 'programms':{}}
                 # Получаем команды для стадии модуля
                 cmds = self.cmd_data[module_stage]
-                unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds)
+                unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
                 samples_result_dict['samples'][module_stage]['status'] = status
                 samples_result_dict['samples'][module_stage]['programms'].update(exit_codes)
 

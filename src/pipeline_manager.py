@@ -155,4 +155,4 @@ class PipelineManager:
                             for programm, exit_code in sample_data.items():
                                 print(f'\t\t{programm}: exit code {exit_code}')'''
 
-        save_yaml(filename='status_log.yaml', data=result_dict, path=self.log_dir)
+        save_yaml(filename='status_log', data=result_dict, path=self.log_dir)

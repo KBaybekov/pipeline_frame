@@ -6,7 +6,8 @@ import os
 class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         self.cmds_template:dict
-        self.debug:bool
+        self.debug:list
+        self.proc_debug:str=''
         self.executables:dict
         self.exclude_samples:list
         self.include_samples:list
@@ -46,12 +47,20 @@ class ModuleRunner:
                                     cmds_dict=self.commands, commands=self.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', self.log_dir, self.cmd_data)
-        # Если режим демонстрации активен, завершаем выполнение
-        if self.debug:
-            print('CMD_TPL', self.cmds_template)
-            print('samples', self.samples)
-            print('CMD_DATA', self.cmd_data)
-            return module_result_dict
+
+        # Если режим дебага активен, возвращаем нужные данные и при необходимости завершаем выполнение
+        if len(self.debug) !=0:
+            debug_data = {'cmd_tpl': self.cmds_template,'samples': self.samples, 'cmds':self.cmd_data}
+            for debug_item in self.debug:
+                if debug_item == 'all':
+                    print(debug_data)
+                    self.proc_debug = 'all'
+                if debug_item in debug_data.keys():
+                    print(debug_item, debug_data[debug_item])
+                if debug_item in ['errors', 'info']:
+                    self.proc_debug = debug_item
+            if 'demo' in self.debug:
+                return module_result_dict
 
         # Алиас
         c = self.cmd_data
@@ -59,7 +68,7 @@ class ModuleRunner:
         # Создаём пути
         create_paths(list(self.folders.values()))
         # Инициализируем CommandExecutor
-        exe = CommandExecutor(cmd_data=c, log_space=self.log_space, module=module)
+        exe = CommandExecutor(cmd_data=c, log_space=self.log_space, module=module, debug=self.proc_debug)
 
         # Выполняем команды для каждого образца
         print(f'Module: {BLUE}{module}{WHITE}')
