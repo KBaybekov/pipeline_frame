@@ -75,7 +75,7 @@ class CommandExecutor:
 
                     # Получаем команды для текущего образца
                     cmds = self.cmd_data[module_stage][sample]
-                    unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds)
+                    unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
 
                     # Обновляем логи
                     log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log_space,
