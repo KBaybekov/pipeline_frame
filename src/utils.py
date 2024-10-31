@@ -562,7 +562,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
                 }
     
 
-def get_duration(precision:str, duration_sec:float=0, start_time:int=0, cpu_start_time:int=0) -> tuple:
+def get_duration(duration_sec:float=0, start_time:int=0, cpu_start_time:int=0, precision:str='s') -> tuple:
     # Время завершения (общее)
     duration_sec = int(time.time() - start_time)
     
