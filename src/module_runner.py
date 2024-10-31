@@ -20,7 +20,7 @@ class ModuleRunner:
         self.output_dir:str
         self.source_extensions: tuple
         self.subfolders:bool
-        self.timeout_behavior:str=''
+        self.timeout_behavior=''
         self.filenames: dict
         self.commands: dict
         self.cmd_data: dict
