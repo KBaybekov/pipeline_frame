@@ -446,6 +446,7 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
         }
 
     except subprocess.TimeoutExpired:
+        print('FUCK!')
         result.kill()
         duration_sec, duration, cpu_duration, end_datetime = get_duration(start_time=start_time, cpu_start_time=cpu_start_time)
         # Лог при тайм-ауте
