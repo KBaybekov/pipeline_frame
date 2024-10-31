@@ -55,6 +55,9 @@ class CommandExecutor:
                 # Получаем команды для стадии модуля
                 cmds = self.cmd_data[module_stage]
                 unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
+                if any(code != 0 for code in exit_codes.values()):
+                        module_result_dict[module_stage]['status'] = False
+                        module_result_dict['status'] = False
                 module_result_dict[module_stage]['status'] = status
                 module_result_dict[module_stage]['programms'].update(exit_codes)
 
@@ -76,7 +79,11 @@ class CommandExecutor:
                     # Получаем команды для текущего образца
                     cmds = self.cmd_data[module_stage][sample]
                     unit_result, exit_codes, status, interruption = run_cmds(cmds=cmds, debug=self.debug)
-
+                    if any(code != 0 for code in exit_codes.values()):
+                        module_result_dict[module_stage][sample]['status'] = False
+                        module_result_dict['status'] = False
+                    module_result_dict[module_stage][sample]['programms'].update(exit_codes)
+                    
                     # Обновляем логи
                     log_section, stdout_section, stderr_section = gather_logs(all_logs=self.logs, log_space=self.log_space,
                                                                             log=log_section, stdout=stdout_section, stderr=stderr_section,

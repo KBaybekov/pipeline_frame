@@ -146,7 +146,22 @@ class PipelineManager:
             print("Пайплайн завершён успешно.")
         else:
             print("Пайплайн завершён с ошибками!")
-            '''for module, module_data in result_dict['modules'].items():
+            '''failed_programms = {}
+            for module, module_data in result_dict['modules'].items():
+                if not module_data['status']:
+                    failed_programms[module]={}
+                    if isinstance(module_data, dict):
+                        for stage, stage_data in module_data.items():
+                            if not stage_data['status']:
+                                failed_programms[module][stage] = {}
+                                if isinstance(stage_data, dict):
+                                    if stage !='batch':
+                                        for program, code in stage_data['programms'].items():
+                                            if code != 0:
+                                            
+
+
+
                 if not module_data['status']:
                     print(f'Модуль: {module}')
                     for sample, sample_data in result_dict['modules'][module][module_data].items():
