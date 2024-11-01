@@ -43,7 +43,7 @@ class ModuleRunner:
         self.samples = generate_sample_list(in_samples=self.include_samples, ex_samples=self.exclude_samples,
                                             input_dir=self.input_dir, extensions=self.source_extensions, subfolders=self.subfolders)
         # Генеририруем команды
-        self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders, debug=self.debug,
+        self.cmd_data = generate_cmd_data(args=self.__dict__, folders=self.folders,
                                     executables=self.executables, filenames=self.filenames,
                                     cmds_dict=self.commands, commands=self.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
@@ -86,7 +86,7 @@ class ModuleRunner:
         if debug:
             print('YAML_DATA', data)
         # Составляем полные пути для папок
-        data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir, debug=self.debug)
+        data['folders'] = get_paths(folders=data['folders'], input_dir=input_dir, output_dir=output_dir)
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
             if key == 'source_extensions':

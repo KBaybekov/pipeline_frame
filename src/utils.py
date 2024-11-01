@@ -108,7 +108,7 @@ def load_templates(path: str, required_files:list) -> dict:
     return loaded_configs    
 
         
-def get_paths(folders: dict, input_dir: str, output_dir: str, debug:bool) -> dict:
+def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
     """
     Создаёт словарь с путями для всех директорий, указанных в словаре 'folders',
     где для каждой директории указан путь относительно 'input_dir' или 'output_dir'.
@@ -128,13 +128,12 @@ def get_paths(folders: dict, input_dir: str, output_dir: str, debug:bool) -> dic
         # Проходим по всем директориям в 'output_dir' и добавляем базовый путь 'output_dir'
         **{key: os.path.join(output_dir, f'{value}/') for key, value in (folders.get('output_dir') or {}).items()}
     }
-    if debug:
-        print('FOLDERS', folders_with_paths)
+
     return folders_with_paths
 
 
 def generate_cmd_data(args:dict, folders:dict,
-                        executables:dict, debug:bool,
+                        executables:dict, 
                         filenames:dict, commands:dict,
                         cmds_dict:dict, samples:list):
     """
@@ -176,8 +175,7 @@ def generate_cmd_data(args:dict, folders:dict,
 
     # Создаём набор команд, которые выполнятся однократно после прогона по образцам
     cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
-    if debug:
-        print('CMD_DATA_in_func', cmd_data)
+
     return cmd_data
 
 
