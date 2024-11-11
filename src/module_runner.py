@@ -51,9 +51,11 @@ class ModuleRunner:
 
         # Если режим дебага активен, возвращаем нужные данные и при необходимости завершаем выполнение
         if len(self.debug) !=0:
+            print('!!')
             debug_data = {'cmd_tpl': self.cmds_template,'samples': self.samples, 'cmds':self.cmd_data}
             for debug_item in self.debug:
                 if debug_item == 'all':
+                    print('!!!!')
                     print(debug_data)
                     self.proc_debug = 'all'
                 if debug_item in debug_data.keys():
