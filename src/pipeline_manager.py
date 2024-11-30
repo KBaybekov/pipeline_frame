@@ -129,6 +129,8 @@ class PipelineManager:
         result_dict = {'status':True, 'modules':{}}
 
         # Проходим по каждому модулю, указанному в аргументах
+        if self.modules == 'all':
+            self.modules = self.modules_template['sequence']
         for module in self.modules_template['sequence']:
             if module in self.modules:
                 print(f'Запуск модуля: {module}')
