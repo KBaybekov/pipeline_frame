@@ -298,6 +298,7 @@ def generate_commands(context:dict,
     # Проходим по каждому ключу в filenames и вычисляем значение
     errors = 0
 
+    print(cmd_list)
     for key in cmd_list:
         cmd_instructions = commands[key]
         if type(cmd_instructions) == list:
