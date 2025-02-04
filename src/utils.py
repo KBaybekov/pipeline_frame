@@ -410,8 +410,10 @@ def run_command(cmd:str, timeout:int, debug:str) -> dict:
 
     stdout, stderr = "", ""
 
+    """result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)"""
     result = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                universal_newlines=True, executable="/bin/bash", bufsize=1, cwd=None, env=None)
+                                universal_newlines=True, bufsize=1, cwd=None)
 
     try:       
         # Ожидаем завершения с таймаутом
